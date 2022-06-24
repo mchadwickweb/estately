@@ -1,17 +1,10 @@
 import Head from "next/head";
 import FilterList from "../components/FilterList";
+import { getHouses, HouseListType } from "../api/get-houses";
 import styles from "../styles/Home.module.css";
 
-type Houses = {
-  id: string;
-  title: string;
-  type: string;
-  bedrooms: string;
-  price: string;
-}[];
-
 type HomeProps = {
-  houses: Houses;
+  houses: HouseListType;
   children: React.ReactNode;
 };
 
@@ -77,24 +70,7 @@ export default function Home({ houses }: HomeProps) {
 }
 
 export async function getServerSideProps() {
-  const res = await fetch(
-    "https://dev-estate-agent-demo.pantheonsite.io/jsonapi/node/house"
-  );
-  const { data } = await res.json();
-
-  let houses = data
-    .map((house) => {
-      return {
-        id: house.id,
-        title: house.attributes?.title,
-        type: house.attributes?.field_type,
-        bedrooms: house.attributes?.field_bedrooms,
-        price: `£${new Intl.NumberFormat().format(
-          house.attributes?.field_price
-        )}`,
-      };
-    })
-    .reverse();
+  const houses = await getHouses();
 
   return { props: { houses } };
 }
